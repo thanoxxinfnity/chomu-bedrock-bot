@@ -10,9 +10,10 @@ http.createServer((req, res) => {
     console.log(`[HTTP] Keep-alive server running on port ${PORT}`);
 });
 
-// 2. Server Configuration & In-built Key
+// 2. Server Configuration
 const CONFIG = {
-    host: 'tejassingh456230.aternos.me',
+    // Agar Render ke env mein DynIP daalo to wo use karega, warna standard domain
+    host: process.env.MC_HOST || 'tejassingh456230.aternos.me',
     port: parseInt(process.env.MC_PORT || '19132', 10),
     username: 'Chomu_AI',
     geminiKey: process.env.GEMINI_API_KEY || 'AQ.Ab8RN6IAyvmI74Z4ALpNE33KecTMiuKuPMx6cQ93A-W9EiPiwg'
@@ -23,9 +24,7 @@ let isConnecting = false;
 
 // 3. Gemini API Chat Generator
 async function getGeminiReply(player, message) {
-    if (!CONFIG.geminiKey) {
-        return "Bhai Gemini API Key set nahi hai!";
-    }
+    if (!CONFIG.geminiKey) return "Gemini Key missing hai!";
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CONFIG.geminiKey}`;
     const prompt = `You are playing Minecraft Bedrock Edition on an Aternos server. 
@@ -52,7 +51,7 @@ Player "${player}" said: "${message}"`;
     }
 }
 
-// 4. Chat Sender Helper for Bedrock
+// 4. Chat Sender Helper
 function sendChat(msg) {
     if (!client) return;
     try {
@@ -83,7 +82,7 @@ function connectBot() {
             port: CONFIG.port,
             username: CONFIG.username,
             offline: true,
-            skipPing: true
+            connectTimeout: 30000 // 30 second connection window
         });
 
         client.on('join', () => {
@@ -94,7 +93,6 @@ function connectBot() {
             }, 3000);
         });
 
-        // Chat Listener
         client.on('text', async (packet) => {
             const sender = packet.source_name;
             const message = packet.message;
@@ -116,7 +114,7 @@ function connectBot() {
         });
 
         client.on('close', () => {
-            console.log('[Disconnected] Connection band ho gaya. 15s mein reconnect hoga...');
+            console.log('[Disconnected] Connection closed. Retrying in 15s...');
             cleanupAndReconnect();
         });
 
