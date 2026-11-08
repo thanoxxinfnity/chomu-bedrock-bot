@@ -1,0 +1,15 @@
+{
+  "name": "aternos-bedrock-ai-bot",
+  "version": "1.0.0",
+  "description": "Chomu AI Bedrock Bot for Aternos",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "bedrock-protocol": "^3.39.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
